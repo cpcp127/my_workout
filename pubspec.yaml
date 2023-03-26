@@ -54,6 +54,7 @@ dependencies:
   smooth_page_indicator: ^1.0.0+2
   easy_refresh: ^3.2.2+2
   jiffy: ^5.0.0
+  flutter_slidable: ^2.0.0
   paginate_firestore:
     git:
       url: https://github.com/waqadArshad/paginate_firestore.git

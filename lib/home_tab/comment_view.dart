@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -6,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:paginate_firestore/paginate_firestore.dart';
 import 'package:testpro/home_tab/comment_controller.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 class CommentView extends GetView<CommentController> {
   @override
@@ -29,22 +31,41 @@ class CommentView extends GetView<CommentController> {
                     ],
                     onEmpty: Container(),
                     itemBuilder: (context, snapshot, index) {
-                      return ListTile(
-                        leading: CircleAvatar(
-                          radius: 20,
-                          backgroundImage:
-                              NetworkImage(snapshot[index]['user_photo']),
+                      return Slidable(
+                        //enabled: defaultTargetPlatform == TargetPlatform.android ? false : true,
+                        endActionPane: ActionPane(
+                          motion: const ScrollMotion(),
+                          dismissible: DismissiblePane(onDismissed: () {}),
+                          children: [
+                            SlidableAction(
+                              backgroundColor: Color(0xFFFE4A49),
+                              foregroundColor: Colors.white,
+                              icon: Icons.delete,
+                              label: 'Delete',
+                              onPressed: (BuildContext context) {},
+                            ),
+                          ],
                         ),
-                        title: Text(snapshot[index]['nickname']),
-                        subtitle: Text(snapshot[index]['comment']),
-                        trailing: Text(Jiffy(snapshot[index]['datetime'].toDate())
-                            .fromNow(),),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            radius: 20,
+                            backgroundImage:
+                                NetworkImage(snapshot[index]['user_photo']),
+                          ),
+                          title: Text(snapshot[index]['nickname']),
+                          subtitle: Text(snapshot[index]['comment']),
+                          trailing: Text(
+                            Jiffy(snapshot[index]['datetime'].toDate())
+                                .fromNow(),
+                          ),
+                        ),
                       );
                     },
                     query: FirebaseFirestore.instance
                         .collection('comment')
                         .doc('articles')
-                        .collection(controller.articleId.value).orderBy('datetime',descending: true),
+                        .collection(controller.articleId.value)
+                        .orderBy('datetime', descending: true),
                     itemBuilderType: PaginateBuilderType.listView),
               ),
             ),
@@ -82,11 +103,13 @@ class CommentView extends GetView<CommentController> {
                             .doc('articles')
                             .collection(controller.articleId.value)
                             .add({
-                          'nickname':controller.homeController.myUser.value.nickname,
-                          'datetime':DateTime.now(),
-                          'comment':controller.commentController.text,
-                          'user_photo':controller.homeController.myUser.value.photoUrl,
-                        }).then((value){
+                          'nickname':
+                              controller.homeController.myUser.value.nickname,
+                          'datetime': DateTime.now(),
+                          'comment': controller.commentController.text,
+                          'user_photo':
+                              controller.homeController.myUser.value.photoUrl,
+                        }).then((value) {
                           //comment 숫자 늘려주기
                           FirebaseFirestore.instance
                               .collection('articles')
@@ -96,11 +119,11 @@ class CommentView extends GetView<CommentController> {
                           });
                           controller.commentController.clear();
                           controller.refreshChangeListener.refreshed = true;
-                          controller.homeController.refreshChangeListener.refreshed=true;
-                        }).catchError((e){
+                          controller.homeController.refreshChangeListener
+                              .refreshed = true;
+                        }).catchError((e) {
                           Fluttertoast.showToast(msg: '댓글 등록 실패');
                         });
-
                       },
                       icon: Icon(Icons.send))
                 ],

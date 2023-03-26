@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:paginate_firestore/paginate_firestore.dart';
@@ -56,72 +57,113 @@ class FirstTabView extends GetView<HomeController> {
                       const SizedBox(width: 4),
                       Text(snapshot[index]['nickname']),
                       const Expanded(child: SizedBox()),
-                      IconButton(onPressed: (){
-                        Get.bottomSheet(
-                          Container(
-                            height: 250,
-                            child: SingleChildScrollView(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children:  [
-                                  const Text('신고하기'),
-                                  const SizedBox(height: 16),
-                                  const Text('신고 이유를 써주세요'),
-                                  const SizedBox(height: 16),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                                    child: TextFormField(
-
-                                      keyboardType: TextInputType.multiline,
-                                      maxLines: null,
-                                      decoration: const InputDecoration(
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                                          borderSide: BorderSide(width: 1, color: Colors.black),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                                          borderSide: BorderSide(width: 1, color: Colors.black),
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Row(
+                      IconButton(
+                          onPressed: () {
+                            Get.bottomSheet(
+                              Container(
+                                height: 250,
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
-                                      const SizedBox(width: 16),
-                                      Expanded(
-                                        child: Container(
+                                      const Text('신고하기'),
+                                      const SizedBox(height: 16),
+                                      const Text('신고 이유를 써주세요'),
+                                      const SizedBox(height: 16),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 16),
+                                        child: TextFormField(
+                                          controller: controller.claimEditingController,
+                                          keyboardType: TextInputType.multiline,
+                                          maxLines: null,
+                                          decoration: const InputDecoration(
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(12.0)),
+                                              borderSide: BorderSide(
+                                                  width: 1,
+                                                  color: Colors.black),
+                                            ),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(12.0)),
+                                              borderSide: BorderSide(
+                                                  width: 1,
+                                                  color: Colors.black),
+                                            ),
+                                            border: OutlineInputBorder(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(12.0)),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Row(
+                                        children: [
+                                          const SizedBox(width: 16),
+                                          Expanded(
+                                            child: GestureDetector(
+                                              onTap: (){
+                                                Get.back();
+                                              },
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                  color: Colors.grey
+                                                      .withOpacity(0.5),
+                                                ),
+                                                height: 56,
+                                                child: Center(child: Text('취소'),),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 16),
+                                          Expanded(
+                                            child: GestureDetector(
+                                              onTap: (){
+                                                FirebaseFirestore.instance.collection('claims').add({
+                                                  'article_id':snapshot[index].id,
+                                                  'claim_reason':controller.claimEditingController.text,
 
-                                          height: 56,
-                                          color: Colors.blue,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 16),
-                                      Expanded(
-                                        child: Container(
-                                          height: 56,
-                                          color: Colors.red,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 16),
+                                                }).then((value){
+                                                  Get.back();
+                                                  Fluttertoast.showToast(msg: '신고 완료');
+                                                }).catchError((e){
+                                                  Fluttertoast.showToast(msg: '신고 실패');
+                                                });
+                                              },
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                  color: Colors.red,
+                                                ),
+                                                height: 56,
+                                                child: Center(child: Text('신고'),),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 16),
+                                        ],
+                                      )
                                     ],
-                                  )
-                                ],
+                                  ),
+                                ),
+                                decoration: const BoxDecoration(
+                                  borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(16),
+                                      topRight: Radius.circular(16)),
+                                  color: Colors.white,
+                                ),
                               ),
-                            ),
-                            decoration: const BoxDecoration(
-                              borderRadius: BorderRadius.only(topLeft: Radius.circular(16),topRight: Radius.circular(16)),
-                              color: Colors.white,
-                            ),
-                          ),
-                        );
-
-                      }, icon: const Icon(Icons.more_horiz)),
+                            );
+                          },
+                          icon: const Icon(Icons.more_horiz)),
                     ],
                   ),
                   snapshot[index]['photoUrlList'].isEmpty
@@ -223,7 +265,8 @@ class FirstTabView extends GetView<HomeController> {
                         onPressed: () {
                           print(snapshot[index].id);
                           //Get.put(CommentController());
-                          Get.to(() => CommentView(),arguments: snapshot[index].id);
+                          Get.to(() => CommentView(),
+                              arguments: snapshot[index].id);
                           Get.put(CommentController());
                         },
                         icon: const Icon(
@@ -234,7 +277,10 @@ class FirstTabView extends GetView<HomeController> {
                       Text(snapshot[index]['comment'].toString()),
                     ],
                   ),
-                  Divider(thickness: 1,height: 1,color: Colors.grey.withOpacity(0.2)),
+                  Divider(
+                      thickness: 1,
+                      height: 1,
+                      color: Colors.grey.withOpacity(0.2)),
                   const SizedBox(height: 11),
                 ],
               );
