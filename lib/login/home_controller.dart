@@ -10,9 +10,12 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:paginate_firestore/bloc/pagination_listeners.dart';
 import 'package:testpro/home_tab/second_tab_controller.dart';
+import 'package:testpro/home_tab/second_tab_view.dart';
 import 'package:testpro/login/login_controller.dart';
 import 'package:testpro/model/user_model.dart';
 import 'package:testpro/widget/show_loading.dart';
+
+import '../home_view.dart';
 
 class HomeController extends GetxController {
   var myUser = UserModel().obs;
@@ -51,9 +54,8 @@ class HomeController extends GetxController {
       myUser.value = UserModel.fromJson(value.data());
     });
     await loadEvent();
-
-    isLoading.value = false;
     print('init end');
+    isLoading.value = false;
   }
 
   @override
@@ -75,7 +77,6 @@ class HomeController extends GetxController {
         .get()
         .then((value) {
       for (int i = 0; i < value.docs.length; i++) {
-
         eventsMain.addAll({
           DateTime.utc(
               value.docs[i].data()['date'].toDate().year,
@@ -122,8 +123,14 @@ class HomeController extends GetxController {
         .set({
       'photoUrlList': photoDownloadUrlList,
       'date': DateTime.now().toLocal(),
-    }).whenComplete(() {
-      Get.back();
+    }).whenComplete(() async{
+
+     await loadEvent();
+     SecondTabView().build(Get.context!);
+     HomeController().refresh();
+    await HomeController().onInit();
+     Get.back();
+     Get.back();
     });
   }
 }
@@ -132,4 +139,6 @@ class Event {
   List<dynamic> title;
 
   Event(this.title);
+
+
 }

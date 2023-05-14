@@ -8,8 +8,6 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../home_view.dart';
-import '../register/register_controller.dart';
-import '../register/register_view.dart';
 import 'home_controller.dart';
 
 class LoginController extends GetxController {
@@ -67,12 +65,12 @@ class LoginController extends GetxController {
               Get.to(() => HomeView());
               box.write('auto_login_email', loginEmail.value);
             }else{
-              Get.put(RegisterController());
-              Get.to(() => RegisterView(),arguments: authResult);
+              // Get.put(RegisterController());
+              // Get.to(() => RegisterView(),arguments: authResult);
             }
           }).catchError((e){
-            Get.put(RegisterController());
-            Get.to(() => RegisterView(),arguments: authResult);
+            // Get.put(RegisterController());
+            // Get.to(() => RegisterView(),arguments: authResult);
           });
         }else{
           Fluttertoast.showToast(msg:'이미 등록된 이메일입니다!');

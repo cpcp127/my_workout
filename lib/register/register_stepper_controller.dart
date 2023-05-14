@@ -8,7 +8,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:get_storage/get_storage.dart';
-class RegisterEmailController extends GetxController {
+
+class RegisterStepperController extends GetxController{
   final box = GetStorage();
 
   TextEditingController nickEditingController = TextEditingController();
@@ -23,33 +24,22 @@ class RegisterEmailController extends GetxController {
   var selectChipLabel = '헬스'.obs;
   var selectImage = [].obs;
   var photoDownloadUrl = '';
-
   @override
   void onInit() {
     super.onInit();
-    print('on init');
-
-    //userCredential=Get.arguments;
-  }
-
-  @override
-  void onReady() {
-    super.onReady();
-    print('on ready');
   }
 
   @override
   void onClose() {
     super.onClose();
   }
-
   Future<void> fireAuthLogin(context) async {
     //showLoading();
     await uploadProfileImageStorage();
     try {
       UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: emailEditingController.text,
-          password: pwdEditingController.text,
+        email: emailEditingController.text,
+        password: pwdEditingController.text,
       );
       FirebaseFirestore.instance
           .collection('users')

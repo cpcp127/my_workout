@@ -40,7 +40,7 @@ class SecondTabView extends GetView<HomeController> {
                       mainAxisSize: MainAxisSize.max,
                     ),
                     Obx(
-                      () => controller.eventsMain.isEmpty
+                      () => controller.isLoading.value == true
                           ? Center(child: CircularProgressIndicator())
                           : TableCalendar(
                               headerStyle: HeaderStyle(
@@ -68,9 +68,7 @@ class SecondTabView extends GetView<HomeController> {
                               },
                             ),
                     ),
-                    Obx(() => controller.eventsMain.isEmpty
-                        ? Container()
-                        : Container(
+                    Obx(() => Container(
                             width: 300,
                             height: 300,
                             child: controller.eventsMain[DateTime.utc(

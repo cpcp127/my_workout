@@ -3,8 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
-import 'package:testpro/register/register_controller.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:testpro/register/register_email_controller.dart';
 
 class RegisterEmailView extends GetView<RegisterEmailController> {
@@ -22,41 +20,39 @@ class RegisterEmailView extends GetView<RegisterEmailController> {
               key: _formKey,
               child: Column(
                 children: [
-                  Text('프로필 이미지'),
+                  const Text('프로필 이미지'),
                   GestureDetector(
                     onTap: () async {
-
                       await controller.selectImagePicker();
                     },
                     child: Obx(
-                          () => controller.selectImage.isEmpty
+                      () => controller.selectImage.isEmpty
                           ? Container(
-                        width: 120,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(100),
-                          //border: Border.all(color: Colors.blue),
-                          image: DecorationImage(
-                              image: AssetImage(
-                                  'assets/images/plush_icon.png'),
-                              fit: BoxFit.cover),
-                        ),
-                      )
+                              width: 120,
+                              height: 120,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(100),
+                                //border: Border.all(color: Colors.blue),
+                                image: const DecorationImage(
+                                    image: AssetImage(
+                                        'assets/images/plush_icon.png'),
+                                    fit: BoxFit.cover),
+                              ),
+                            )
                           : Container(
-                        width: 120,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(100),
-                          //border: Border.all(color: Colors.blue),
-                          image: DecorationImage(
-                              image: FileImage(
-                                  File(controller.selectImage.first)),
-                              fit: BoxFit.cover),
-                        ),
-                      ),
+                              width: 120,
+                              height: 120,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(100),
+                                //border: Border.all(color: Colors.blue),
+                                image: DecorationImage(
+                                    image: FileImage(
+                                        File(controller.selectImage.first)),
+                                    fit: BoxFit.cover),
+                              ),
+                            ),
                     ),
                   ),
-
                   const Text('이메일'),
                   Padding(
                       padding: const EdgeInsets.symmetric(
@@ -128,19 +124,19 @@ class RegisterEmailView extends GetView<RegisterEmailController> {
                           labelText: '닉네임',
                           focusedBorder: OutlineInputBorder(
                             borderRadius:
-                            BorderRadius.all(Radius.circular(12.0)),
+                                BorderRadius.all(Radius.circular(12.0)),
                             borderSide:
-                            BorderSide(width: 1, color: Colors.black),
+                                BorderSide(width: 1, color: Colors.black),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius:
-                            BorderRadius.all(Radius.circular(12.0)),
+                                BorderRadius.all(Radius.circular(12.0)),
                             borderSide:
-                            BorderSide(width: 1, color: Colors.black),
+                                BorderSide(width: 1, color: Colors.black),
                           ),
                           border: OutlineInputBorder(
                             borderRadius:
-                            BorderRadius.all(Radius.circular(12.0)),
+                                BorderRadius.all(Radius.circular(12.0)),
                           ),
                         ),
                       )),
@@ -156,16 +152,16 @@ class RegisterEmailView extends GetView<RegisterEmailController> {
                               controller.selectGender.value = 'M';
                             },
                             child: Obx(
-                                  () => Container(
+                              () => Container(
                                 height: 56,
                                 child: const Center(child: Text('남자')),
                                 decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
                                         color:
-                                        controller.selectGender.value == 'M'
-                                            ? Colors.blue
-                                            : Colors.black,
+                                            controller.selectGender.value == 'M'
+                                                ? Colors.blue
+                                                : Colors.black,
                                         width: 1)),
                               ),
                             ),
@@ -179,17 +175,17 @@ class RegisterEmailView extends GetView<RegisterEmailController> {
                                 controller.selectGender.value = 'W';
                               },
                               child: Obx(
-                                    () => Container(
+                                () => Container(
                                   height: 56,
                                   child: const Center(child: Text('여자')),
                                   decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(12),
                                       border: Border.all(
                                           color:
-                                          controller.selectGender.value ==
-                                              'W'
-                                              ? Colors.blue
-                                              : Colors.black,
+                                              controller.selectGender.value ==
+                                                      'W'
+                                                  ? Colors.blue
+                                                  : Colors.black,
                                           width: 1)),
                                 ),
                               )),
@@ -198,17 +194,39 @@ class RegisterEmailView extends GetView<RegisterEmailController> {
                       ],
                     ),
                   ),
-                  const Text('데드리프트'),
-                  buildTextFiled(controller.deadNode,
-                      controller.deadEditingController, '데드리프트'),
-                  const Text('스쿼트'),
-                  buildTextFiled(controller.squartNode,
-                      controller.squartEditingController, '스쿼트'),
-                  const Text('벤치프레스'),
-                  buildTextFiled(controller.benchNode,
-                      controller.benchEditingController, '벤치프레스'),
+                  Obx(()=>
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 6,
+                        children: List<Widget>.generate(
+                          controller.chipLabel.length,
+                              (index) => ChoiceChip(
+                            pressElevation: 0.0,
+                            selectedColor: Colors.blue,
+                            backgroundColor: Colors.grey[100],
+                            label: Text(controller.chipLabel[index]),
+                            selected: controller.chipIndex.value == index,
+                            onSelected: (bool selected){
+                              controller.chipIndex.value = (selected ? index : null)!;
+                              controller.selectChipLabel.value=controller.chipLabel[index];
+                            },
+                          ),
+                        ),
+                      ),
+                  ),
+
+                  // const Text('데드리프트'),
+                  // buildTextFiled(controller.deadNode,
+                  //     controller.deadEditingController, '데드리프트'),
+                  // const Text('스쿼트'),
+                  // buildTextFiled(controller.squartNode,
+                  //     controller.squartEditingController, '스쿼트'),
+                  // const Text('벤치프레스'),
+                  // buildTextFiled(controller.benchNode,
+                  //     controller.benchEditingController, '벤치프레스'),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 16),
                     child: GestureDetector(
                       onTap: () {
                         //
@@ -244,15 +262,15 @@ class RegisterEmailView extends GetView<RegisterEmailController> {
           controller: textEditingController,
           decoration: InputDecoration(
             labelText: label,
-            focusedBorder: OutlineInputBorder(
+            focusedBorder: const OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(12.0)),
               borderSide: BorderSide(width: 1, color: Colors.black),
             ),
-            enabledBorder: OutlineInputBorder(
+            enabledBorder: const OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(12.0)),
               borderSide: BorderSide(width: 1, color: Colors.black),
             ),
-            border: OutlineInputBorder(
+            border: const OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(12.0)),
             ),
           ),
