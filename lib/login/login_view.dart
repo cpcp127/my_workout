@@ -66,7 +66,9 @@ class LoginView extends GetView<LoginController> {
             GestureDetector(
               onTap: () {
                 //
-                Get.put(RegisterStepperController());
+                //Get.lazyPut(RegisterStepperController());
+                Get.lazyPut<RegisterStepperController>(
+                        () => RegisterStepperController());
                 Get.to(() => RegisterStepperView());
               },
               child: Text('회원가입'),
