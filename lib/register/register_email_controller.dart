@@ -8,6 +8,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:testpro/login/login_view.dart';
 class RegisterEmailController extends GetxController {
   final box = GetStorage();
 
@@ -65,7 +66,8 @@ class RegisterEmailController extends GetxController {
         //box.write('${email}_login', true);
         FirebaseAuth.instance.currentUser?.sendEmailVerification();
         Fluttertoast.showToast(msg: '회원가입 완료!');
-        Get.back();
+        Get.to(() => LoginView());
+        //Get.back();
         //hideLoading(context);
       }).catchError((e){
         print(e);

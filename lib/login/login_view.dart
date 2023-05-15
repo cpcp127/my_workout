@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:testpro/home_view.dart';
 import 'package:testpro/login/home_controller.dart';
@@ -36,7 +37,8 @@ class LoginView extends GetView<LoginController> {
                       Get.put(HomeController());
                       Get.to(() => HomeView());
                     } else {
-                      print('이메일 확인 안댐');
+                      Fluttertoast.showToast(msg: '회원가입 이메일을 확인해주세요');
+                      FocusManager.instance.primaryFocus?.unfocus();
                     }
                     return value;
                   });

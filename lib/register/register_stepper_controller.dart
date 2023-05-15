@@ -159,8 +159,10 @@ class RegisterStepperController extends GetxController{
   Future<String> validateStepThree()async{
     if(selectImage.isEmpty){
       return '프로필 사진을 업로드 해주세요';
-    }else if(nickEditingController.text.isEmpty){
-      return '닉네임을 입력해주세요';
+    }else if(nickEditingController.text.contains(' ')){
+      return '닉네임에 공백은 안됩니다';
+    }else if(nickEditingController.text.contains(RegExp('[^a-zA-Z0-9가-힣\\s]'))){
+      return '닉네임에 특수문자는 안됩니다';
     }else{
       return 'ok';
     }

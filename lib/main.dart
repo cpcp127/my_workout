@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -57,5 +60,13 @@ class _MyAppState extends State<MyApp> {
     Jiffy.locale('ko');
     Get.put(LoginController());
     Get.lazyPut(() => HomeController());
+    var dataToHash = 'toricode';
+
+    var bytesToHash = utf8.encode(dataToHash);
+    var sha256Digest = sha256.convert(bytesToHash);
+    var digest = sha1.convert(bytesToHash);
+    print('Data to hash: $dataToHash');
+    print('SHA-256: $sha256Digest');
+    print('sha1 : $digest');
   }
 }

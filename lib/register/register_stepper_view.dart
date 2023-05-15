@@ -10,23 +10,26 @@ class RegisterStepperView extends GetView<RegisterStepperController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: Obx(
         () => Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Visibility(
                 visible: controller.stepperIndex.value == 0 ? false : true,
                 child: FloatingActionButton(
+                  heroTag: "btn1",
                   onPressed: () {
                     controller.stepperIndex.value--;
                   },
-                  child: Icon(Icons.navigate_before),
+                  child: const Icon(Icons.navigate_before),
                 ),
               ),
               FloatingActionButton(
+                heroTag: "btn2",
                 onPressed: () async {
                   controller.stepperIndex.value == 0
                       ? await controller
@@ -56,17 +59,51 @@ class RegisterStepperView extends GetView<RegisterStepperController> {
                                 FocusManager.instance.primaryFocus?.unfocus();
                               }
                             })
-                          : controller.validateStepThree().then((value) {
-                              if (value == 'ok') {
-                                controller.stepperIndex.value++;
-                                FocusManager.instance.primaryFocus?.unfocus();
-                              } else {
-                                Fluttertoast.showToast(msg: value);
-                                FocusManager.instance.primaryFocus?.unfocus();
-                              }
-                            });
+                          : controller.stepperIndex.value == 2
+                              ? controller.stepperIndex.value++
+                              : controller.validateStepThree().then((value) {
+                                print(value);
+                                  if (value == 'ok') {
+                                    //controller.stepperIndex.value++;
+                                    showDialog(
+                                      // The user CANNOT close this dialog  by pressing outsite it
+                                        barrierDismissible: false,
+                                        context: context,
+                                        builder: (_) {
+                                          return Dialog(
+                                            child: Padding(
+                                              padding: const EdgeInsets.symmetric(vertical: 12,horizontal: 16),
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Text('회원가입중...',style: TextStyle(fontSize: 20),),
+                                                  SizedBox(height: 8),
+                                                  CircularProgressIndicator(),
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                    );
+                                    FocusManager.instance.primaryFocus
+                                        ?.unfocus();
+                                    controller.fireAuthLogin(context).whenComplete((){
+                                      Navigator.pop(context);
+                                    });
+                                  } else {
+                                    Fluttertoast.showToast(msg: value);
+                                    FocusManager.instance.primaryFocus
+                                        ?.unfocus();
+                                  }
+                                });
                 },
-                child: Icon(Icons.navigate_next),
+                child:
+                Obx(()=>
+                controller.stepperIndex.value != 3
+                      ? Icon(Icons.navigate_next)
+                      : Icon(Icons.check),
+                ),
+
               )
             ],
           ),
@@ -80,7 +117,9 @@ class RegisterStepperView extends GetView<RegisterStepperController> {
                     ? emailStep()
                     : controller.stepperIndex.value == 1
                         ? pwdStep()
-                        : nickAndPhotoStep(),
+                        : controller.stepperIndex.value == 2
+                            ? myWorkOutStep(context)
+                            : infoStep(),
               ))),
     );
   }
@@ -190,7 +229,47 @@ class RegisterStepperView extends GetView<RegisterStepperController> {
     );
   }
 
-  Column nickAndPhotoStep() {
+  Column myWorkOutStep(context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.max,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          '나의 운동',
+          style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700),
+        ),
+        const SizedBox(height: 20),
+        const Text(
+          '내가 주로 하는 운동을 선택 해주세요',
+          style: TextStyle(fontWeight: FontWeight.w500),
+        ),
+        const SizedBox(height: 20),
+        Obx(
+          () => Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 6,
+            children: List<Widget>.generate(
+              controller.chipLabel.length,
+              (index) => ChoiceChip(
+                pressElevation: 0.0,
+                //backgroundColor: Colors.grey[100],
+                label: Text(controller.chipLabel[index]),
+                selected: controller.chipIndex.value == index,
+                onSelected: (bool selected) {
+                  controller.chipIndex.value = (selected ? index : null)!;
+                  controller.selectChipLabel.value =
+                      controller.chipLabel[index];
+                },
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Column infoStep() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.max,
@@ -202,59 +281,29 @@ class RegisterStepperView extends GetView<RegisterStepperController> {
         ),
         const SizedBox(height: 20),
         const Text(
-          '프로필 사진을 업로드 해주세요',
+          '닉네임을 입력해주세요',
           style: TextStyle(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 20),
-        Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            GestureDetector(
-              onTap: () {
-                controller.selectGender.value = 'M';
-              },
-              child: Container(
-                width: 120,
-                height: 48,
-                child: Center(
-                    child: Text(
-                  '남자',
-                  style: TextStyle(
-                      color: controller.selectGender.value == 'M'
-                          ? Colors.teal
-                          : Colors.black),
-                )),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                        color: controller.selectGender.value == 'M'
-                            ? Colors.teal
-                            : Colors.black)),
-              ),
+        TextField(
+          focusNode: controller.nicknameFocus,
+          controller: controller.nickEditingController,
+          maxLength: 8,
+          decoration: const InputDecoration(
+            labelText: '닉네임',
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(12.0)),
+              borderSide: BorderSide(width: 1 ),
             ),
-            GestureDetector(
-              onTap: () {
-                controller.selectGender.value = 'W';
-              },
-              child: Container(
-                width: 120,
-                height: 48,
-                child: Center(
-                    child: Text('여자',
-                        style: TextStyle(
-                            color: controller.selectGender.value == 'W'
-                                ? Colors.teal
-                                : Colors.black))),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                        color: controller.selectGender.value == 'W'
-                            ? Colors.teal
-                            : Colors.black)),
-              ),
-            )
-          ],
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(12.0)),
+              borderSide: BorderSide(width: 1),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(12.0)),
+            ),
+          ),
+          keyboardType: TextInputType.text,
         ),
         const SizedBox(height: 20),
         const Text(
@@ -264,12 +313,24 @@ class RegisterStepperView extends GetView<RegisterStepperController> {
         const SizedBox(height: 20),
         Obx(
           () => controller.selectImage.isEmpty
-              ? IconButton(
-                  iconSize: 100,
-                  onPressed: () async {
+              ? GestureDetector(
+                  onTap: () async {
                     await controller.selectImagePicker();
                   },
-                  icon: Icon(Icons.add_box_outlined))
+                  child: Container(
+                    width: 120,
+                    height: 120,
+                    child: const Center(
+                      child: Text(
+                        '사진을 업로드\n해주세요',
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.black)),
+                  ),
+                )
               : GestureDetector(
                   onTap: () async {
                     await controller.selectImagePicker();
@@ -287,31 +348,6 @@ class RegisterStepperView extends GetView<RegisterStepperController> {
                   ),
                 ),
         ),
-        const SizedBox(height: 20),
-        const Text(
-          '닉네임을 입력해주세요',
-          style: TextStyle(fontWeight: FontWeight.w500),
-        ),
-        const SizedBox(height: 20),
-        TextField(
-          focusNode: controller.nicknameFocus,
-          controller: controller.nickEditingController,
-          decoration: const InputDecoration(
-            labelText: '닉네임',
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(12.0)),
-              borderSide: BorderSide(width: 1, color: Colors.black),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(12.0)),
-              borderSide: BorderSide(width: 1, color: Colors.black),
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(12.0)),
-            ),
-          ),
-          keyboardType: TextInputType.text,
-        )
       ],
     );
   }
